@@ -1,3 +1,5 @@
+#creates two csv files 'per_video_related' and 'per_video'
+
 from bs4 import BeautifulSoup #for scraping
 import requests               #required for reading the file
 import pandas as pd           #(optional) Pandas for dataframes 
@@ -147,4 +149,15 @@ for x in string_dec:
         Vid['Views'] = x
 
 
-print(Vid)
+df_related = pd.DataFrame.from_dict(data = Vid['Related_vids'], orient='index', columns = ['link'])
+df_related['Title'] = Vid['Title']
+
+df_related.to_csv('per_video_related.csv')
+
+
+keys_to_exclude = set(('Related_vids'))
+dict2 = {k:v for k,v in Vid.items() if k not in keys_to_exclude}
+
+
+df = pd.DataFrame(dict2, index = [0])
+df.to_csv('per_video.csv')
