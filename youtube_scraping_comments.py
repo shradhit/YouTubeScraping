@@ -41,4 +41,3 @@ write_file = "output_replies.csv"
 with open(write_file, "w") as output:
     for line in all_replies:
         output.write(line + '\n')
-#My actual ouput:
