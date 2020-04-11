@@ -1,10 +1,13 @@
 # can scrape audio
 # url for playlist will scrape all the videos from the playlist..
-
+    
+    
 from __future__ import unicode_literals
 import youtube_dl
 
-yt_url = 'https://www.youtube.com/playlist?list=PL08230BC08BF305AC'
+
+url = input() 
+input_ = url + '&page=1'
 
 
 ydl_opts = {
@@ -21,5 +24,8 @@ ydl_opts = {
     'keepvideo': True
 }
 
+
+
 with youtube_dl.YoutubeDL(ydl_opts) as ydl:
-    ydl.download([yt_url])
+    ydl.download([input_])
+    
