@@ -42,4 +42,8 @@ print('title       : %s' %(meta['title']))
 print('description : %s' %(meta['description']))
 
 
-
+keys_to_include = set(('upload_date'))
+dict2 = {k:v for k,v in meta.items() if k in keys_to_include}
+df = pd.DataFrame(dict2, index = [0])
+# saving file to CSV
+df.to_csv('per_video.csv')
