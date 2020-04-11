@@ -4,6 +4,9 @@
 from __future__ import unicode_literals
 import youtube_dl
 
+search_url = input()
+search_url = search_url + '&page=1'
+
 ydl_opts = {
     'format': 'bestaudio/best',
     'postprocessors': [{
@@ -19,7 +22,7 @@ ydl_opts = {
 }
 
 with youtube_dl.YoutubeDL(ydl_opts) as ydl:
-        meta = ydl.extract_info('https://www.youtube.com/watch?v=9bZkp7q19f0', download=True) 
+        meta = ydl.extract_info(search_url, download=True) 
 
         
 #print('upload date : %s' %(meta['upload_date']))
@@ -32,6 +35,7 @@ with youtube_dl.YoutubeDL(ydl_opts) as ydl:
 #print('duration    : %s' %(meta['duration']))
 #print('title       : %s' %(meta['title']))
 #print('description : %s' %(meta['description']))
+
 
 
 keys = ['upload_date', 'uploader', 'view_count', 'like_count', 
