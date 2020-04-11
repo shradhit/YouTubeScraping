@@ -151,13 +151,10 @@ for x in string_dec:
 
 df_related = pd.DataFrame.from_dict(data = Vid['Related_vids'], orient='index', columns = ['link'])
 df_related['Title'] = Vid['Title']
-
+# saving file to CSV
 df_related.to_csv('per_video_related.csv')
-
-
 keys_to_exclude = set(('Related_vids'))
 dict2 = {k:v for k,v in Vid.items() if k not in keys_to_exclude}
-
-
 df = pd.DataFrame(dict2, index = [0])
+# saving file to CSV
 df.to_csv('per_video.csv')
