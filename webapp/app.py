@@ -50,7 +50,7 @@ def form_data():
 
     with youtube_dl.YoutubeDL(ydl_opts) as ydl:
         meta = ydl.extract_info(link, download=True)
-    #print('DONE')
+    print('DONE')
 
     keys = ['uploader', 'uploader_url', 'upload_date', 'creator', 'title', 'description', 'categories',
             'duration', 'view_count', 'like_count', 'dislike_count', 'average_rating', 'start_time', 'end_time',
@@ -61,7 +61,7 @@ def form_data():
     df.index = df['title']
     files = os.listdir(source)
     file_name = str(meta['title']).replace("|", "_")
-    #print(file_name)
+    print(file_name)
 
     for f in files:
         if f.startswith(file_name):
@@ -72,7 +72,7 @@ def form_data():
             continue
 
     sub_titles = glob.glob('./down/' + file_name + '*.en.vtt')
-    #print(sub_titles)
+    print(sub_titles)
     if len(sub_titles) != 0:
         vtt = webvtt.read(sub_titles[0])
 
@@ -80,23 +80,23 @@ def form_data():
         end_list = list()
         # Storing all the lines as part of the lines list
         lines = []
-        #print('DONE 2')
+        print('DONE 2')
         for x in range(len(vtt)):
             start_list.append(vtt[x].start)
             end_list.append(vtt[x].end)
-        #print('DONE 3')
+        print('DONE 3')
 
         for line in vtt:
             lines.append(line.text.strip().splitlines())
 
         lines = [' '.join(item) for item in lines]
-        #print('DONE 4')
+        print('DONE 4')
 
         final_df = pd.DataFrame({'Start_time': start_list, 'End_time': end_list, 'Statement': lines})
 
         sid_obj = SentimentIntensityAnalyzer()
         sentiment_scores_vader = [sid_obj.polarity_scores(article) for article in final_df.Statement]
-        #print('DONE 5')
+        print('DONE 5')
 
         sentiment_category_positive = []
         sentiment_category_neutral = []
@@ -120,6 +120,52 @@ def form_data():
                                 'overall_polarity', 'Start_time', 'End_time']
         abcd = sentiment_df.to_json()
         print('DONE 6')
+
+        heatmap_polarity = sentiment_df['overall_polarity'].astype('float').values
+        heatmap_polarity = heatmap_polarity.reshape(heatmap_polarity.shape[0], 1)
+
+        sns_plot = sns.heatmap(data=heatmap_polarity[:20].T, robust=True, cmap='RdYlGn', yticklabels=False, xticklabels=5, cbar=False)
+        fig = sns_plot.get_figure()
+
+        fig.savefig("static/images/output.png")
+
+        print('DONE 7')
+
+        #########
+
+        comment_words = ' '
+        stopwords = set(STOPWORDS)
+
+        # iterate through the corpus
+        for val in sentiment_df.Statement:
+
+            # typecaste each val to string
+            val = str(val)
+
+            # split the value
+            tokens = val.split()
+
+            # Converts each token into lowercase
+            for i in range(len(tokens)):
+                tokens[i] = tokens[i].lower()
+
+            for words in tokens:
+                comment_words = comment_words + words + ' '
+
+        wordcloud = WordCloud(width=800, height=800,
+                              background_color='white',
+                              stopwords=stopwords,
+                              min_font_size=10).generate(comment_words)
+
+
+        # Plot the WordCloud image
+        plt.figure(figsize=(8, 8), facecolor=None)
+        plt.imshow(wordcloud)
+        plt.axis('off')
+        plt.tight_layout(pad=0)
+        plt.savefig('static/images/output2.png', bbox_inches='tight')
+
+
         return abcd
 
     return "DONE"
