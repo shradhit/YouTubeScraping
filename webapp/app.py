@@ -124,7 +124,7 @@ def form_data():
         heatmap_polarity = sentiment_df['overall_polarity'].astype('float').values
         heatmap_polarity = heatmap_polarity.reshape(heatmap_polarity.shape[0], 1)
 
-        sns_plot = sns.heatmap(data=heatmap_polarity[:20].T, robust=True, cmap='RdYlGn', yticklabels=False, xticklabels=5, cbar=False)
+        sns_plot = sns.heatmap(data=heatmap_polarity.T, robust=True, cmap='RdYlGn', yticklabels=False, xticklabels=5, cbar=False)
         fig = sns_plot.get_figure()
 
         fig.savefig("static/images/output.png")
