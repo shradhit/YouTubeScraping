@@ -50,7 +50,7 @@ def form_data():
 
     with youtube_dl.YoutubeDL(ydl_opts) as ydl:
         meta = ydl.extract_info(link, download=True)
-    print('DONE')
+    #print('DONE')
 
     keys = ['uploader', 'uploader_url', 'upload_date', 'creator', 'title', 'description', 'categories',
             'duration', 'view_count', 'like_count', 'dislike_count', 'average_rating', 'start_time', 'end_time',
@@ -61,7 +61,7 @@ def form_data():
     df.index = df['title']
     files = os.listdir(source)
     file_name = str(meta['title']).replace("|", "_")
-    print(file_name)
+    #print(file_name)
 
     for f in files:
         if f.startswith(file_name):
@@ -72,7 +72,7 @@ def form_data():
             continue
 
     sub_titles = glob.glob('./down/' + file_name + '*.en.vtt')
-    print(sub_titles)
+    #print(sub_titles)
     if len(sub_titles) != 0:
         vtt = webvtt.read(sub_titles[0])
 
@@ -80,23 +80,23 @@ def form_data():
         end_list = list()
         # Storing all the lines as part of the lines list
         lines = []
-        print('DONE 2')
+        #print('DONE 2')
         for x in range(len(vtt)):
             start_list.append(vtt[x].start)
             end_list.append(vtt[x].end)
-        print('DONE 3')
+        #print('DONE 3')
 
         for line in vtt:
             lines.append(line.text.strip().splitlines())
 
         lines = [' '.join(item) for item in lines]
-        print('DONE 4')
+        #print('DONE 4')
 
         final_df = pd.DataFrame({'Start_time': start_list, 'End_time': end_list, 'Statement': lines})
 
         sid_obj = SentimentIntensityAnalyzer()
         sentiment_scores_vader = [sid_obj.polarity_scores(article) for article in final_df.Statement]
-        print('DONE 5')
+        #print('DONE 5')
 
         sentiment_category_positive = []
         sentiment_category_neutral = []
