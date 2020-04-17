@@ -2,6 +2,9 @@ import os
 import glob
 import shutil
 
+import string
+import random
+
 import youtube_dl
 
 from vaderSentiment.vaderSentiment import SentimentIntensityAnalyzer
@@ -33,6 +36,8 @@ def my_form():
 @ app.route("/form_data", methods=["GET", "POST"])
 def form_data():
 
+    file_image = randomString(8)
+
     if request.method == "POST":
         link = request.form['link']
     source = os.getcwd()
@@ -50,28 +55,54 @@ def form_data():
 
     with youtube_dl.YoutubeDL(ydl_opts) as ydl:
         meta = ydl.extract_info(link, download=True)
+
     print('DONE')
 
     keys = ['uploader', 'uploader_url', 'upload_date', 'creator', 'title', 'description', 'categories',
             'duration', 'view_count', 'like_count', 'dislike_count', 'average_rating', 'start_time', 'end_time',
             'release_date', 'release_year']
 
+
+
     filtered_d = dict((k, meta[k]) for k in keys if k in meta)
     df = pd.DataFrame.from_dict(filtered_d, orient='index').T
     df.index = df['title']
+    print(meta['title'])
     files = os.listdir(source)
-    file_name = str(meta['title']).replace("|", "_")
-    print(file_name)
+    #file_name_ = str(meta['title']).replace("|", "_")
+    #file_name = str(file_name_).replace(":", "-")
+
 
     for f in files:
-        if f.startswith(file_name):
-            shutil.move(f, dest)
-            # print('done')
+        if f.endswith('vtt'):
+            file_envtt = './down/' + file_image + '.en.vtt'
+            os.rename(f, file_envtt)
+
+        elif f.endswith('json'):
+            file_json = './down/' + file_image + '.json'
+            os.rename(f, file_json)
+
+        elif f.endswith('wav'):
+            file_wav = './down/' + file_image + '.wav'
+            os.rename(f, file_wav)
+
         else:
-            # print(str(df['title']))
             continue
 
-    sub_titles = glob.glob('./down/' + file_name + '*.en.vtt')
+
+
+    #for f in files:
+    #    if f.endswith('vtt') or f.endswith('json') or f.endswith('wav'):
+    #        shutil.copy(f, dest)
+    #        os.remove(f)
+    #    else:
+            # print(str(df['title']))
+    #        continue
+    #files_dest = os.listdir(dest)
+
+
+
+    sub_titles = glob.glob('./down/' + file_image + '*.en.vtt')
     print(sub_titles)
     if len(sub_titles) != 0:
         vtt = webvtt.read(sub_titles[0])
@@ -124,10 +155,14 @@ def form_data():
         heatmap_polarity = sentiment_df['overall_polarity'].astype('float').values
         heatmap_polarity = heatmap_polarity.reshape(heatmap_polarity.shape[0], 1)
 
-        sns_plot = sns.heatmap(data=heatmap_polarity.T, robust=True, cmap='RdYlGn', yticklabels=False, xticklabels=5, cbar=False)
+        sns_plot = sns.heatmap(data=heatmap_polarity[:20].T, robust=True, cmap='RdYlGn', yticklabels=False, xticklabels=5, cbar=True, cbar_kws={"orientation": "horizontal"})
+
         fig = sns_plot.get_figure()
 
-        fig.savefig("static/images/output.png")
+
+        img_save1 = file_image +".png"
+
+        fig.savefig("static/" + img_save1)
 
         print('DONE 7')
 
@@ -163,15 +198,15 @@ def form_data():
         plt.imshow(wordcloud)
         plt.axis('off')
         plt.tight_layout(pad=0)
-        plt.savefig('static/images/output2.png', bbox_inches='tight')
+        img_save2 = file_image +"two.png"
+        plt.savefig("static/" + img_save2)
+
+        return render_template("new.html", graph_one=img_save1, graph_two=img_save2)
+
+    return render_template("my-form.html")
 
 
-        return abcd
-
-    return "DONE"
-
-#return '''<form method ="POST"> Enter the Youtube link <input type ="text" name ="link"> <input type ="submit"> </form>'''
-
-
-
+def randomString(stringLength=8):
+    letters = string.ascii_lowercase
+    return ''.join(random.choice(letters) for i in range(stringLength))
 
